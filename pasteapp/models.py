@@ -32,7 +32,8 @@ class Paste(models.Model):
     created_at = models.DateTimeField()
     sharable = models.BooleanField(default=True)
     password = models.CharField(max_length=255, blank=True)
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, blank=True, null=True)
     expired_at = models.DateTimeField()
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     objects = ObjectManager()
