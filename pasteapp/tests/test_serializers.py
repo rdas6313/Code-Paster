@@ -147,6 +147,8 @@ class PasteSerializerTestCase(APITransactionTestCase):
 
         serializer = PasteSerializer(data=data)
         self.assertTrue(serializer.is_valid())
+        serializer.save()
+        self.assertTrue('id' in serializer.data)
         self.assertTrue('code' in serializer.data)
         self.assertTrue('sharable' in serializer.data)
         self.assertTrue('expired_at' in serializer.data)
