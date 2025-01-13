@@ -1,10 +1,8 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-
-# Create your views here.
+from rest_framework.viewsets import ModelViewSet
+from .models import Paste
+from .serializers import PasteSerializer
 
 
-@api_view(['get'])
-def home(request):
-    return Response("Hello")
+class PasteViewSet(ModelViewSet):
+    queryset = Paste.objects.all()
+    serializer_class = PasteSerializer

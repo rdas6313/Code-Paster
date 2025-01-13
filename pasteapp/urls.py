@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.urls import path
 from .views import *
+from rest_framework import routers
+from .views import PasteViewSet
 
-urlpatterns = [
-    path("home/", home),
-]
+router = routers.SimpleRouter()
+router.register(r'paste', PasteViewSet)
+
+urlpatterns = router.urls
