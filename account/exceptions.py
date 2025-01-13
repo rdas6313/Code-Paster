@@ -5,6 +5,8 @@ from rest_framework.exceptions import ErrorDetail
 def exception_handler(exc, context):
     """ custom exception handler to change error response messages """
     response = super_exception_handler(exc, context)
+    if not response:
+        return response
     res = {}
     for field, errors in response.data.items():
         errors = [errors] if field == 'detail' else errors
