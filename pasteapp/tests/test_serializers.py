@@ -1,15 +1,19 @@
 from rest_framework.test import APITransactionTestCase
 from pasteapp.serializers import *
 from pasteapp.models import *
+from django.contrib.auth import get_user_model
 
 
 class PasteSerializerTestCase(APITransactionTestCase):
 
     def setUp(self):
         self.language = Language.objects.create(name='python')
+        self.user = get_user_model().objects.create_user(
+            email="test123@test123.com", name="Test name", password="123")
 
     def tearDown(self):
         Language.objects.filter(id=self.language.id).delete()
+        self.user.delete()
 
     def test_serializer_validation(self):
         data = {
@@ -235,3 +239,26 @@ class PasteSerializerTestCase(APITransactionTestCase):
         self.assertEqual(paste.expired_at.strftime(
             '%Y-%m-%d %H:%M:%S'), data['expired_at'])
         self.assertEqual(paste.language.id, data['language'])
+
+    def test_paste_creation_with_user(self):
+        data = {
+            'code': 'abc',
+            'sharable': True,
+            'password': '123',
+            'expired_at': '2025-10-25 14:30:59',
+            'language': self.language.id,
+        }
+
+        serializer = PasteSerializer(data=data, context={'user': self.user})
+
+        self.assertTrue(serializer.is_valid(raise_exception=True))
+        paste = serializer.save()
+        self.assertIsInstance(paste, Paste)
+        self.assertTrue(paste.id)
+        self.assertEqual(paste.code, data['code'])
+        self.assertEqual(paste.sharable, data['sharable'])
+        self.assertTrue(paste.is_valid_password(data['password']))
+        self.assertEqual(paste.expired_at.strftime(
+            '%Y-%m-%d %H:%M:%S'), data['expired_at'])
+        self.assertEqual(paste.language.id, data['language'])
+        self.assertEqual(paste.user.id, self.user.id)

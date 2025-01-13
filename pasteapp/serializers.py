@@ -14,6 +14,7 @@ class PasteSerializer(serializers.ModelSerializer):
                   'password', 'expired_at', 'language']
 
     def save(self, **kwargs):
+        self.validated_data['user'] = self.context.get('user', None)
         password = self.validated_data.pop('password', None)
         paste = super().save(**kwargs)
         if password:
