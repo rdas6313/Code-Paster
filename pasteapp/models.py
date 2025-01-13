@@ -24,6 +24,9 @@ class Language(models.Model):
     name = models.CharField(max_length=255)
     objects = ObjectManager()
 
+    def __str__(self):
+        return self.name
+
 
 class Paste(models.Model):
     """ This model is responsible for holding paste related data """
