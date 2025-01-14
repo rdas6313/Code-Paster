@@ -262,3 +262,27 @@ class PasteSerializerTestCase(APITransactionTestCase):
             '%Y-%m-%d %H:%M:%S'), data['expired_at'])
         self.assertEqual(paste.language.id, data['language'])
         self.assertEqual(paste.user.id, self.user.id)
+
+    def test_serializer_expiry_date_smaller_than_created_date(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        paste = Paste.objects.create(
+            code='abc',
+            sharable=False,
+            expired_at=timezone.now() + timedelta(days=1),
+            language=self.language
+        )
+
+        data = {
+            'code': 'def',
+            'sharable': True,
+            'password': '123',
+            'expired_at': '2024-10-25 14:30:59',
+            'language': self.language.id
+        }
+
+        serializer = PasteSerializer(paste, data=data)
+        self.assertTrue(serializer.is_valid())
+        with self.assertRaises(serializers.ValidationError) as e:
+            serializer.save()
+        self.assertIn('field',e.exception.detail)

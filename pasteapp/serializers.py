@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Paste
+from django.core.exceptions import ValidationError
 
 
 class PasteSerializer(serializers.ModelSerializer):
@@ -16,7 +17,16 @@ class PasteSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         self.validated_data['user'] = self.context.get('user', None)
         password = self.validated_data.pop('password', None)
-        paste = super().save(**kwargs)
+        paste = self.save_to_database(**kwargs)
         if password:
             paste.create_password(password)
         return paste
+
+    def save_to_database(self, **kwargs):
+        try:
+            paste = super().save(**kwargs)
+        except ValidationError as e:
+            errors = {'field': e.messages}
+            raise serializers.ValidationError(errors, code='invalid_input')
+        else:
+            return paste
