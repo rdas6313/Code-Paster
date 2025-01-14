@@ -12,7 +12,7 @@ class PasteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paste
         fields = ['id', 'code', 'sharable',
-                  'password', 'expired_at', 'language']
+                  'password', 'expired_at', 'language', 'user']
 
     def save(self, **kwargs):
         self.validated_data['user'] = self.context.get('user', None)
