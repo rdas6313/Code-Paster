@@ -24,6 +24,12 @@ class PasteSerializer(serializers.ModelSerializer):
                 detail='Unauthenticated user can\'t have unsharable data')
         return sharable
 
+    def validate_password(self, password):
+        if not self.context.get('user', None) and password:
+            raise serializers.ValidationError(
+                detail='Unauthenticated user can\'t have password protected data')
+        return password
+
     def save(self, **kwargs):
         self.validated_data['user'] = self.context.get('user', None)
         password = self.validated_data.pop('password', None)
