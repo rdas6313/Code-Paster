@@ -8,11 +8,21 @@ class PasteSerializer(serializers.ModelSerializer):
         required=False, trim_whitespace=False, write_only=True)
     sharable = serializers.BooleanField(required=False, default=True)
     id = serializers.UUIDField(read_only=True)
+    password_protected = serializers.SerializerMethodField()
 
     class Meta:
         model = Paste
-        fields = ['id', 'code', 'sharable',
+        fields = ['id', 'code', 'sharable', 'password_protected',
                   'password', 'expired_at', 'language', 'user']
+
+    def get_password_protected(self, paste):
+        return bool(paste.password)
+
+    def validate_sharable(self, sharable):
+        if not self.context.get('user', None) and not sharable:
+            raise serializers.ValidationError(
+                detail='Unauthenticated user can\'t have unsharable data')
+        return sharable
 
     def save(self, **kwargs):
         self.validated_data['user'] = self.context.get('user', None)
