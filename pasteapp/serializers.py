@@ -20,6 +20,7 @@ class PasteSerializer(serializers.ModelSerializer):
         paste = self.save_to_database(**kwargs)
         if password:
             paste.create_password(password)
+            paste.save()
         return paste
 
     def save_to_database(self, **kwargs):
@@ -30,3 +31,7 @@ class PasteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors, code='invalid_input')
         else:
             return paste
+
+
+class SinglePastePasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(trim_whitespace=False, write_only=True)

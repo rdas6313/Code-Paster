@@ -15,4 +15,14 @@ class PastePermission(permissions.BasePermission):
                 return obj.user.id == request.user.id
             else:
                 return False
+        elif view.action == 'retrieve':
+            if not obj.sharable:
+                if request.user.is_authenticated and obj.user:
+                    return obj.user.id == request.user.id
+                return False
+            else:
+                if obj.password:
+                    return (obj.user and obj.user.id == request.user.id)
+                return True
+
         return super().has_object_permission(request, view, obj)
