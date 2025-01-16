@@ -29,6 +29,9 @@ class PasteSerializer(serializers.ModelSerializer):
                     settings.GUEST_PASTE_MAX_VALIDITY.days
                 } days'
             )
+        if expiry_date < creation_date:
+            raise serializers.ValidationError(
+                detail='Paste expiry can\'t be smaller than creation which is current date and time')
         return expiry_date
 
     def validate_sharable(self, sharable):
