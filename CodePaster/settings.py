@@ -162,3 +162,6 @@ DJOSER = {
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Paste validity setting
+GUEST_PASTE_MAX_VALIDITY = timedelta(weeks=4)

@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Paste
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.conf import settings
+from datetime import datetime
 
 
 class PasteSerializer(serializers.ModelSerializer):
@@ -17,6 +20,16 @@ class PasteSerializer(serializers.ModelSerializer):
 
     def get_password_protected(self, paste):
         return bool(paste.password)
+
+    def validate_expired_at(self, expiry_date):
+        creation_date = timezone.now()
+        if not self.context.get('user', None) and expiry_date - creation_date > settings.GUEST_PASTE_MAX_VALIDITY:
+            raise serializers.ValidationError(
+                detail=f'Unauthenticated user can\'t have paste expiry more than {
+                    settings.GUEST_PASTE_MAX_VALIDITY.days
+                } days'
+            )
+        return expiry_date
 
     def validate_sharable(self, sharable):
         if not self.context.get('user', None) and not sharable:
